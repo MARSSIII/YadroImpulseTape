@@ -7,7 +7,4 @@ struct TapeConfig {
   int writeDelay = 0;
   int rewindDelay = 0;
   int shiftDelay = 0;
-
-  TapeConfig() = default;
-  explicit TapeConfig(const std::string &filename);
 };

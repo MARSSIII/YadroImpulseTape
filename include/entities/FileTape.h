@@ -1,7 +1,7 @@
 #pragma once
 
+#include "../interfaces/TapeInterface.h"
 #include "TapeConfig.h"
-#include "TapeInterface.h"
 
 #include <fstream>
 #include <string>
