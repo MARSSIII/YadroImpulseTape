@@ -1,15 +1,15 @@
 #pragma once
 
-#include "../interfaces/TapeInterface.h"
-#include "TapeConfig.h"
+#include "../../interfaces/TapeInterface.h"
+#include "../TapeConfig.h"
 
 #include <fstream>
 #include <string>
 
-class FileTape : public TapeInterface {
+class BinaryFileTape : public TapeInterface {
 public:
-  FileTape(const std::string &filename, const TapeConfig &config);
-  ~FileTape();
+  BinaryFileTape(const std::string &filename, const TapeConfig &config);
+  ~BinaryFileTape() noexcept;
 
   int read() final;
   void write(int data) final;
