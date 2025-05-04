@@ -1,17 +1,51 @@
 cmake_minimum_required(VERSION 3.25 FATAL_ERROR)
 
-set(PROJECT_NAME TapeSorter) 
-
-project(${PROJECT_NAME}
-        LANGUAGES CXX)
-
-add_executable(${PROJECT_NAME}
-    src/main.cpp
-    src/FileTape.cpp
-    src/TapeSorter.cpp
-    src/factories/BuilderTapeConfigFactory.cpp
-    src/factories/FileTapeConfigFactory.cpp
+project(TapeSorter
+    VERSION 1.0.0
+    DESCRIPTION "Tape sorting application with configurable delays"
+    LANGUAGES CXX
 )
 
-target_include_directories(${PROJECT_NAME} PRIVATE include)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+option(ENABLE_TESTING "Enable testing with Google Test" OFF)
+option(ENABLE_WARNINGS "Enable compiler warnings" ON)
+
+if(ENABLE_WARNINGS)
+    if(MSVC)
+        add_compile_options(/W4 /WX)
+    else()
+        add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+    endif()
+endif()
+
+file(GLOB_RECURSE SOURCES 
+    "src/*.cpp"
+    "src/factories/*.cpp"
+)
+
+file(GLOB_RECURSE HEADERS 
+    "include/*.h"
+    "include/factories/*.h"
+)
+
+add_executable(${PROJECT_NAME}
+    ${SOURCES}
+    ${HEADERS}
+)
+
+target_include_directories(${PROJECT_NAME}
+    PUBLIC 
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+)
+
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS OFF
+    VERSION ${PROJECT_VERSION}
+)
 
