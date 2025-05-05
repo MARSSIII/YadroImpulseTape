@@ -17,8 +17,10 @@ public:
   void moveLeft() final;
   void moveRight() final;
   void rewind() final;
+
   bool isAtEnd() const final;
   int getSize() const final;
+  std::string getFileName() const;
 
 private:
   std::fstream file;
