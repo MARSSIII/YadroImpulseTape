@@ -1,6 +1,8 @@
 #include "../../include/factories/FileTapeConfigFactory.h"
 
+#include <algorithm>
 #include <fstream>
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
 #include <string_view>
@@ -26,7 +28,8 @@ TapeConfig FileTapeConfigFactory::create() const {
   std::ifstream file(configFile_);
 
   if (!file.is_open()) {
-    throw std::runtime_error("Failed to open config file: " + configFile_);
+    throw std::runtime_error("[CONFIG] Failed to open config file: " +
+                             configFile_);
   }
 
   std::string line;
@@ -37,8 +40,8 @@ TapeConfig FileTapeConfigFactory::create() const {
     try {
       parseLine(line, config);
     } catch (const std::exception &e) {
-      throw std::runtime_error("Error in line " + std::to_string(lineNumber) +
-                               ": " + e.what());
+      throw std::runtime_error("[CONFIG] Error in line " +
+                               std::to_string(lineNumber) + ": " + e.what());
     }
   }
 
@@ -55,10 +58,16 @@ void FileTapeConfigFactory::parseLine(const std::string &line,
     return;
   }
 
+  size_t equals_count = std::count(trimmed.begin(), trimmed.end(), '=');
+  if (equals_count != 1) {
+    throw std::runtime_error("Invalid format: expected exactly one '='");
+  }
+
   std::istringstream iss(trimmed);
   std::string key;
+
   if (!std::getline(iss, key, '=')) {
-    throw std::runtime_error("Invalid format");
+    throw std::runtime_error("Invalid format: missing key");
   }
 
   trimWhitespace(key);
@@ -66,6 +75,7 @@ void FileTapeConfigFactory::parseLine(const std::string &line,
   if (!std::getline(iss, valueStr)) {
     throw std::runtime_error("Missing value");
   }
+
   trimWhitespace(valueStr);
 
   int value;

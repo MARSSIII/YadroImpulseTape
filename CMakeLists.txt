@@ -24,11 +24,18 @@ endif()
 file(GLOB_RECURSE SOURCES 
     "src/*.cpp"
     "src/factories/*.cpp"
-)
+    "src/entities/fileTapes/*.cpp"
+    "src/entities/*.tpp"
+    "src/utils/*.cpp"
+  )
 
 file(GLOB_RECURSE HEADERS 
-    "include/*.h"
     "include/factories/*.h"
+    "include/entities/fileTapes/*.h"
+    "include/entities/*.h"
+    "include/entities/*.hpp"
+    "include/interfaces/*.h"
+    "include/utils/*.hpp"
 )
 
 add_executable(${PROJECT_NAME}

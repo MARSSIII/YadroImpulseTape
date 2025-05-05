@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../include/entities/TapeSorter.hpp"
+// #include "../../include/entities/TapeSorter.hpp"
 
 #include <memory>
 #include <string>
@@ -16,7 +16,7 @@ std::unique_ptr<TapeInterface> createTape(const TapeConfig &config,
                                           const std::string &filename,
                                           const std::string &ext);
 void clearFile(const std::string &filename);
-
+/*
 template <typename TapeT>
 void processTapes(const TapeConfig &config, const std::string &inputPath,
                   const std::string &outputPath) {
@@ -26,5 +26,5 @@ void processTapes(const TapeConfig &config, const std::string &inputPath,
   TapeSorter<TapeT> sorter(12, config);
   sorter.sort(*inputTape, *outputTape);
 }
-
+*/
 } // namespace utils

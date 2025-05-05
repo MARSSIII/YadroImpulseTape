@@ -15,7 +15,7 @@ concept TapeInterfaceDerived = std::is_base_of_v<TapeInterface, T>;
 
 template <TapeInterfaceDerived TapeT> class TapeSorter {
 public:
-  TapeSorter(size_t memoryLimit, const TapeConfig &config);
+  TapeSorter(size_t memoryLimit, const TapeConfig &configT);
   ~TapeSorter();
 
   void sort(TapeT &input, TapeT &output);

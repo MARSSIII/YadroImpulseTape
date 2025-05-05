@@ -1,4 +1,4 @@
-#include "../../include/entities/fileTapes/TextFileTape.h"
+#include "../../../include/entities/fileTapes/TextFileTape.h"
 
 #include <cctype>
 #include <chrono>
@@ -127,6 +127,8 @@ void TextFileTape::rewind() {
 bool TextFileTape::isAtEnd() const { return currentIndex >= totalNumbers; }
 
 int TextFileTape::getSize() const { return totalNumbers; }
+
+std::string TextFileTape::getFileName() const { return filename; }
 
 void TextFileTape::applyDelay(int delay) const {
   std::this_thread::sleep_for(std::chrono::milliseconds(delay));
