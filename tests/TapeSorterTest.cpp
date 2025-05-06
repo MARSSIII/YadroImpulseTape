@@ -16,7 +16,6 @@ protected:
   void TearDown() override { fs::remove_all(tempDir); }
 
   const std::string tempDir = "tape_sorter_test_tmp";
-  ;
 };
 
 /// @brief Создаёт заполненный ленту с числами из data

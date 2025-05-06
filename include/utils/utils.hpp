@@ -6,7 +6,7 @@
 #include <string>
 
 // Предварительные объявления классов, чтобы избежать циклической зависимости
-class TapeConfig;
+struct TapeConfig;
 class TapeInterface;
 
 namespace utils {
