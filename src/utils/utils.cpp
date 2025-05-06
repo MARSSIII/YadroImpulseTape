@@ -1,7 +1,6 @@
 #include "../../include/utils/utils.hpp"
 #include "../../include/entities/TapeConfig.h"
 #include "../../include/entities/fileTapes/BinaryFileTape.h"
-#include "../../include/entities/fileTapes/TextFileTape.h"
 #include "../../include/interfaces/TapeInterface.h"
 
 #include <algorithm>
@@ -71,19 +70,14 @@ std::string utils::getFileExtension(const std::string &filename) {
 ///
 /// @param config Конфигурация ленты.
 /// @param filename Имя файла для ленты.
-/// @param ext Расширение файла (".txt" или ".bin").
+/// @param ext Расширение файла (".bin").
 /// @return std::unique_ptr<TapeInterface> Указатель на созданную ленту.
 /// @throw std::invalid_argument Если переданное расширение `ext` не
-/// является ни ".txt", ни ".bin".
+/// является ни ".bin".
 std::unique_ptr<TapeInterface> utils::createTape(const size_t maxSize,
                                                  const TapeConfig &config,
                                                  const std::string &filename,
                                                  const std::string &ext) {
-
-  // Если расширение ".txt", создаем текстовую ленту
-  if (ext == ".txt") {
-    return std::make_unique<TextFileTape>(filename, config);
-  }
 
   // Если расширение ".bin", создает ленту бинарного файла
   if (ext == ".bin") {
@@ -94,7 +88,7 @@ std::unique_ptr<TapeInterface> utils::createTape(const size_t maxSize,
   // Бросаем исключение, указывая на недопустимый аргумент
   throw std::invalid_argument(
       "Unknown or unsupported file extension passed to createTape: '" + ext +
-      "'. Expected '.txt' or '.bin'.");
+      "'. Expected '.bin'.");
 }
 
 /// @brief Очищает содержимое указанного файла.

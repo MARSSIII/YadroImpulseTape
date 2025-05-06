@@ -1,7 +1,6 @@
 #include "../include/utils/utils.hpp"
 #include "../include/entities/TapeConfig.h"
 #include "../include/entities/fileTapes/BinaryFileTape.h"
-#include "../include/entities/fileTapes/TextFileTape.h"
 
 #include <gtest/gtest.h>
 
@@ -69,14 +68,6 @@ TEST_F(UtilsTest, GetFileExtensionSpecialCases) {
   EXPECT_EQ(utils::getFileExtension("test_temp_utils/no_extension"), "");
   EXPECT_EQ(utils::getFileExtension("test_temp_utils/multiple.dots.txt"),
             ".txt");
-}
-
-// Тесты для createTape
-TEST_F(UtilsTest, CreateTapeTextFile) {
-  // Проверка создания текстовой ленты
-  auto tape =
-      utils::createTape(40, config, "test_temp_utils/empty.txt", ".txt");
-  EXPECT_NE(dynamic_cast<TextFileTape *>(tape.get()), nullptr);
 }
 
 TEST_F(UtilsTest, CreateTapeBinaryFile) {
