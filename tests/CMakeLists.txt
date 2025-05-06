@@ -11,8 +11,8 @@ add_executable(${PROJECT_NAME} ${TEST_SOURCES})
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
     TapeSorterLib
-    GTest::GTest
-    GTest::Main
+    GTest::gtest
+    GTest::gtest_main
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
