@@ -74,19 +74,20 @@ TEST_F(UtilsTest, GetFileExtensionSpecialCases) {
 // Тесты для createTape
 TEST_F(UtilsTest, CreateTapeTextFile) {
   // Проверка создания текстовой ленты
-  auto tape = utils::createTape(config, "test_temp_utils/empty.txt", ".txt");
+  auto tape =
+      utils::createTape(40, config, "test_temp_utils/empty.txt", ".txt");
   EXPECT_NE(dynamic_cast<TextFileTape *>(tape.get()), nullptr);
 }
 
 TEST_F(UtilsTest, CreateTapeBinaryFile) {
   // Проверка создания бинарной ленты
-  auto tape = utils::createTape(config, "test_temp_utils/test.bin", ".bin");
+  auto tape = utils::createTape(40, config, "test_temp_utils/test.bin", ".bin");
   EXPECT_NE(dynamic_cast<BinaryFileTape *>(tape.get()), nullptr);
 }
 
 TEST_F(UtilsTest, CreateTapeInvalidExtension) {
   // Проверка обработки неизвестного расширения
-  EXPECT_THROW(utils::createTape(config, "test.txt", ".csv"),
+  EXPECT_THROW(utils::createTape(40, config, "test.txt", ".csv"),
                std::invalid_argument);
 }
 

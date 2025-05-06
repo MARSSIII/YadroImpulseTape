@@ -10,31 +10,28 @@ class TapeConfigFactoryTest : public ::testing::Test {
 protected:
   void SetUp() override {
     // Создаем временные файлы для тестов
-    fs::create_directory("test_temp_ConfigFactory");
-
-    std::ofstream("test_temp_ConfigFactory/empty.txt");
-    std::ofstream("test_temp_ConfigFactory/test.bin");
-    std::ofstream("test_temp_ConfigFactory/no_extension");
-    std::ofstream("test_temp_ConfigFactory/multiple.dots.txt");
+    fs::create_directory("testTempConfigFactory");
   }
 
   void TearDown() override {
     // Удаляем временную директорию
-    fs::remove_all("test_temp_ConfigFactory");
+    fs::remove_all("testTempConfigFactory");
   }
 };
 
 TEST_F(TapeConfigFactoryTest, CorrectConfig) {
   // Создание корректного конфигурационного файла
+  const std::string filename = "testTempConfigFactory/testConfig.cfg";
+
   {
-    std::ofstream file("test_config.cfg");
+    std::ofstream file(filename);
     file << "read_delay = 10\n";
     file << "write_delay = 20\n";
     file << "rewind_delay = 30\n";
     file << "shift_delay = 40\n";
   }
 
-  TapeConfigFactory factory("test_config.cfg");
+  TapeConfigFactory factory(filename);
   TapeConfig config = factory.create();
 
   EXPECT_EQ(config.readDelay, 10);
@@ -45,11 +42,13 @@ TEST_F(TapeConfigFactoryTest, CorrectConfig) {
 
 TEST_F(TapeConfigFactoryTest, EmptyFile) {
   // Создание пустого файла
+  const std::string filename = "testTempConfigFactory/emptyConfig.cfg";
+
   {
-    std::ofstream file("empty_config.cfg");
+    std::ofstream file(filename);
   }
 
-  TapeConfigFactory factory("empty_config.cfg");
+  TapeConfigFactory factory(filename);
   TapeConfig config = factory.create();
 
   EXPECT_EQ(config.readDelay, 0);
@@ -60,8 +59,9 @@ TEST_F(TapeConfigFactoryTest, EmptyFile) {
 
 TEST_F(TapeConfigFactoryTest, CommentsAndWhitespace) {
   // Файл с комментариями и пробелами
+  const std::string filename = "testTempConfigFactory/configWithComments";
   {
-    std::ofstream file("comments_config.cfg");
+    std::ofstream file(filename);
     file << "# Comment line\n";
     file << "  read_delay   =   100  \n";
     file << "\twrite_delay=200\t\n";
@@ -70,7 +70,7 @@ TEST_F(TapeConfigFactoryTest, CommentsAndWhitespace) {
     file << "shift_delay = 400\n";
   }
 
-  TapeConfigFactory factory("comments_config.cfg");
+  TapeConfigFactory factory(filename);
   TapeConfig config = factory.create();
 
   EXPECT_EQ(config.readDelay, 100);
@@ -79,76 +79,86 @@ TEST_F(TapeConfigFactoryTest, CommentsAndWhitespace) {
   EXPECT_EQ(config.shiftDelay, 400);
 }
 
-TEST_F(TapeConfigFactoryTest, InvalidFormat) {
+TEST_F(TapeConfigFactoryTest, InvalidFormatNotAssignment) {
   // Отсутствие '='
+  const std::string filename = "testTempConfigFactory/InvalidFormat1.cfg";
   {
-    std::ofstream file("invalid_format1.cfg");
+    std::ofstream file(filename);
     file << "read_delay 10\n";
     file.close();
-
-    TapeConfigFactory factory("invalid_format1.cfg");
-    EXPECT_THROW(factory.create(), std::runtime_error);
-    std::filesystem::remove("invalid_format1.cfg");
   }
+  TapeConfigFactory factory(filename);
+  EXPECT_THROW(factory.create(), std::runtime_error);
+}
 
+TEST_F(TapeConfigFactoryTest, InvalidFormatWithTwiceAssignment) {
   // Несколько '='
+  const std::string filename = "testTempConfigFactory/InvalidFormat2";
   {
-    std::ofstream file("invalid_format2.cfg");
+    std::ofstream file(filename);
     file << "read_delay=10=20\n";
     file.close();
-
-    TapeConfigFactory factory("invalid_format2.cfg");
-    EXPECT_THROW(factory.create(), std::runtime_error);
-    std::filesystem::remove("invalid_format2.cfg");
   }
 
+  TapeConfigFactory factory(filename);
+  EXPECT_THROW(factory.create(), std::runtime_error);
+}
+
+TEST_F(TapeConfigFactoryTest, InvalidKey) {
   // Неизвестный ключ
+  const std::string filename = "testTempConfigFactory/invalidKey.cfg";
   {
-    std::ofstream file("invalid_key.cfg");
+    std::ofstream file(filename);
     file << "unknown_key=123\n";
     file.close();
-
-    TapeConfigFactory factory("invalid_key.cfg");
-    EXPECT_THROW(factory.create(), std::runtime_error);
-    std::filesystem::remove("invalid_key.cfg");
   }
 
+  TapeConfigFactory factory(filename);
+  EXPECT_THROW(factory.create(), std::runtime_error);
+}
+
+TEST_F(TapeConfigFactoryTest, InvalidValue) {
   // Нечисловое значение
+  const std::string filename = "testTempConfigFactory/invalidValue";
   {
-    std::ofstream file("invalid_value.cfg");
+    std::ofstream file(filename);
     file << "read_delay=abc\n";
     file.close();
-
-    TapeConfigFactory factory("invalid_value.cfg");
-    EXPECT_THROW(factory.create(), std::runtime_error);
-    std::filesystem::remove("invalid_value.cfg");
   }
+
+  TapeConfigFactory factory(filename);
+  EXPECT_THROW(factory.create(), std::runtime_error);
 }
 
 TEST_F(TapeConfigFactoryTest, NegativeValues) {
+  const std::string filename = "testTempConfigFactory/negativeValues";
+
   {
-    std::ofstream file("negative_values.cfg");
+    std::ofstream file(filename);
     file << "read_delay=-5\n";
   }
 
-  TapeConfigFactory factory("negative_values.cfg");
+  TapeConfigFactory factory(filename);
   EXPECT_THROW(factory.create(), std::runtime_error);
-  std::filesystem::remove("negative_values.cfg");
 }
 
 TEST_F(TapeConfigFactoryTest, NonExistentFile) {
-  TapeConfigFactory factory("non_existent.cfg");
+  const std::string filename = "testTempConfigFactory/nonExistentFile.cfg";
+
+  TapeConfigFactory factory(filename);
   EXPECT_THROW(factory.create(), std::runtime_error);
 }
 
 TEST_F(TapeConfigFactoryTest, PartialConfig) {
+  const std::string filename = "testTempConfigFactory/PartialConfig.cfg";
+
   {
-    std::ofstream file("partial_config.cfg");
+    std::ofstream file(filename);
     file << "read_delay=50\n";
     file << "shift_delay=60\n";
   }
 
-  TapeConfigFactory factory("partial_config.cfg");
+  TapeConfigFactory factory(filename);
   TapeConfig config = factory.create();
 
   EXPECT_EQ(config.readDelay, 50);
@@ -158,24 +168,28 @@ TEST_F(TapeConfigFactoryTest, PartialConfig) {
 }
 
 TEST_F(TapeConfigFactoryTest, DuplicateKeys) {
+  const std::string filename = "testTempConfigFactory/duplicateKeys.cfg";
+
   {
-    std::ofstream file("duplicate_keys.cfg");
+    std::ofstream file(filename);
     file << "read_delay=10\n";
     file << "read_delay=20\n";
   }
 
-  TapeConfigFactory factory("duplicate_keys.cfg");
+  TapeConfigFactory factory(filename);
   TapeConfig config = factory.create();
 
   EXPECT_EQ(config.readDelay, 20);
 }
 
 TEST_F(TapeConfigFactoryTest, KeyWithSpaces) {
+  const std::string filename = "testTempConfigFactory/KeyWithSpaces.cfg";
+
   {
-    std::ofstream file("key_with_spaces.cfg");
+    std::ofstream file(filename);
     file << "read delay=10\n";
   }
 
-  TapeConfigFactory factory("key_with_spaces.cfg");
+  TapeConfigFactory factory(filename);
   EXPECT_THROW(factory.create(), std::runtime_error);
 }
