@@ -69,15 +69,10 @@ std::unique_ptr<TapeInterface> createTape(const size_t maxSize,
 /// @param filename Имя файла для очистки.
 /// @throw std::runtime_error Если файл не удалось открыть/очистить.
 void clearFile(const std::string &filename);
-/*
-template <typename TapeT>
-void processTapes(const TapeConfig &config, const std::string &inputPath,
-                  const std::string &outputPath) {
-  auto inputTape = std::make_unique<TapeT>(inputPath, config);
-  auto outputTape = std::make_unique<TapeT>(outputPath, config);
 
-  TapeSorter<TapeT> sorter(12, config);
-  sorter.sort(*inputTape, *outputTape);
-}
-*/
+/// @brief Возвращает размер указанного файла в байтах.
+/// @param filename Имя файла
+/// @return Размер файла в байтах. Если файл не найден, возвращает 0.
+size_t getFileSize(const std::string &filename);
+
 } // namespace utils
