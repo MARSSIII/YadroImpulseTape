@@ -51,6 +51,7 @@ jobs:
           choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
 
       - name: Configure CMake
+        shell: bash            
         run: |
           cmake -B "${{ steps.vars.outputs.dir_build }}" \
             -S "${{ github.workspace }}" \
