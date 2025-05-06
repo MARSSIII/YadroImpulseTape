@@ -1,5 +1,5 @@
-#include "../include/entities/OldTapeSorter.h"
 #include "../include/entities/TapeConfig.h"
+#include "../include/entities/TapeSorter.h"
 
 #include "../include/factories/TapeConfigFactory.h"
 
