@@ -21,11 +21,11 @@ public:
   void sort(TapeT &input, TapeT &output);
 
 private:
-  size_t memoryLimit;
-  size_t maxElements;
-  const std::string tmp_dir;
+  size_t m_memoryLimit;
+  size_t m_maxElements;
+  const std::string m_tmpDir;
 
-  TapeConfig config;
+  TapeConfig m_config;
 
   void cleanupTempFiles();
   void splitAndSort(TapeT &input, std::vector<std::unique_ptr<TapeT>> &temps);

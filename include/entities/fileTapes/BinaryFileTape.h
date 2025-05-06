@@ -16,17 +16,19 @@ public:
   void moveLeft() final;
   void moveRight() final;
   void rewind() final;
+
   bool isAtEnd() const final;
-  int getSize() const final;
+  size_t getSize() const final;
+  std::string getFilename() const;
 
 private:
-  int currentPosition;
-  int size;
+  size_t m_currentPosition;
+  size_t m_size;
 
-  std::fstream file;
-  std::string filename;
+  std::fstream m_file;
+  std::string m_filename;
 
-  TapeConfig config;
+  TapeConfig m_config;
 
   void updateSize();
   void applyDelay(int delay) const;

@@ -1,12 +1,13 @@
+#include "../include/entities/OldTapeSorter.h"
 #include "../include/entities/TapeConfig.h"
 #include "../include/entities/fileTapes/BinaryFileTape.h"
 #include "../include/entities/fileTapes/TextFileTape.h"
 
-#include "../include/factories/FileTapeConfigFactory.h"
+#include "../include/factories/TapeConfigFactory.h"
 
 #include "../include/interfaces/TapeInterface.h"
 
-#include "utils/utils.hpp"
+#include "../include/utils/utils.hpp"
 
 #include <cctype>
 #include <filesystem>
@@ -34,7 +35,7 @@ int main(int argc, char *argv[]) {
     utils::validateExtensions(inputExt, outputExt);
     utils::clearFile(outputPath.string());
 
-    auto configFactory = std::make_unique<FileTapeConfigFactory>(configFile);
+    auto configFactory = std::make_unique<TapeConfigFactory>(configFile);
     TapeConfig config = configFactory->create();
 
     std::unique_ptr<TapeInterface> inputTape;
@@ -43,16 +44,20 @@ int main(int argc, char *argv[]) {
     inputTape = utils::createTape(config, inputPath.string(), inputExt);
     outputTape = utils::createTape(config, outputPath.string(), outputExt);
 
+    TapeSorter sorter(3);
+    sorter.sort(*inputTape, *outputTape);
+    /*
     if (outputExt == ".txt") {
-      utils::processTapes<TextFileTape>(config, inputPath.string(),
-                                        outputPath.string());
-    } else {
-      utils::processTapes<BinaryFileTape>(config, inputPath.string(),
-                                          outputPath.string());
-    }
 
+              utils::processTapes<TextFileTape>(config, inputPath.string(),
+                                                outputPath.string());
+            } else {
+              utils::processTapes<BinaryFileTape>(config, inputPath.string(),
+                                                  outputPath.string());
+            }
+     */
   } catch (const std::exception &e) {
-    std::cerr << "Error: " << e.what() << '\n';
+    std::cerr << "Error: \n" << e.what() << '\n';
     return 1;
 
   } catch (...) {

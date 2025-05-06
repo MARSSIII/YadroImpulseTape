@@ -6,92 +6,92 @@
 
 BinaryFileTape::BinaryFileTape(const std::string &filename,
                                const TapeConfig &config)
-    : currentPosition(0), size(0), filename(filename), config(config) {
+    : m_currentPosition(0), m_size(0), m_filename(filename), m_config(config) {
 
-  file.open(filename, std::ios::in | std::ios::out | std::ios::binary);
+  m_file.open(filename, std::ios::in | std::ios::out | std::ios::binary);
 
-  if (!file.is_open()) {
-    file.clear();
-    file.open(filename, std::ios::out);
-    file.close();
-    file.open(filename, std::ios::in | std::ios::out | std::ios::ate);
+  if (!m_file.is_open()) {
+    m_file.clear();
+    m_file.open(filename, std::ios::out);
+    m_file.close();
+    m_file.open(filename, std::ios::in | std::ios::out | std::ios::ate);
   }
 
   updateSize();
 }
 
 BinaryFileTape::~BinaryFileTape() noexcept {
-  if (file.is_open())
-    file.close();
+  if (m_file.is_open())
+    m_file.close();
 }
 
 void BinaryFileTape::updateSize() {
-  file.seekg(0, std::ios::end);
+  m_file.seekg(0, std::ios::end);
 
-  int bytes = file.tellg();
-  size = bytes / sizeof(int);
+  int bytes = m_file.tellg();
+  m_size = bytes / sizeof(int);
 
-  file.seekg(currentPosition * sizeof(int));
+  m_file.seekg(m_currentPosition * sizeof(int));
 }
 
 int BinaryFileTape::read() {
-  if (currentPosition >= size)
+  if (m_currentPosition >= m_size)
     throw std::out_of_range("Read position out of range");
 
-  applyDelay(config.readDelay);
+  applyDelay(m_config.readDelay);
 
   int value;
-  file.read(reinterpret_cast<char *>(&value), sizeof(int));
+  m_file.read(reinterpret_cast<char *>(&value), sizeof(int));
 
   return value;
 }
 
 void BinaryFileTape::write(int data) {
-  applyDelay(config.writeDelay);
+  applyDelay(m_config.writeDelay);
 
-  if (currentPosition > size) {
+  if (m_currentPosition > m_size) {
     throw std::out_of_range("Write position out of range");
   }
 
-  file.seekp(currentPosition * sizeof(int));
-  file.write(reinterpret_cast<const char *>(&data), sizeof(int));
-  file.flush();
+  m_file.seekp(m_currentPosition * sizeof(int));
+  m_file.write(reinterpret_cast<const char *>(&data), sizeof(int));
+  m_file.flush();
 
-  if (currentPosition == size) {
-    size++;
+  if (m_currentPosition == m_size) {
+    m_size++;
   }
 
-  currentPosition++;
+  m_currentPosition++;
 }
 
 void BinaryFileTape::moveLeft() {
-  if (currentPosition > 0) {
+  if (m_currentPosition > 0) {
 
-    applyDelay(config.shiftDelay);
+    applyDelay(m_config.shiftDelay);
 
-    currentPosition--;
-    file.seekg(currentPosition * sizeof(int));
+    m_currentPosition--;
+    m_file.seekg(m_currentPosition * sizeof(int));
   }
 }
 
 void BinaryFileTape::moveRight() {
-  if (currentPosition < size) {
-    applyDelay(config.shiftDelay);
-    currentPosition++;
-    file.seekg(currentPosition * sizeof(int));
+  if (m_currentPosition < m_size) {
+    applyDelay(m_config.shiftDelay);
+    m_currentPosition++;
+    m_file.seekg(m_currentPosition * sizeof(int));
   }
 }
 
 void BinaryFileTape::rewind() {
-  applyDelay(config.rewindDelay);
+  applyDelay(m_config.rewindDelay);
 
-  currentPosition = 0;
-  file.seekg(0);
+  m_currentPosition = 0;
+  m_file.seekg(0);
 }
 
-bool BinaryFileTape::isAtEnd() const { return currentPosition >= size; }
+bool BinaryFileTape::isAtEnd() const { return m_currentPosition >= m_size; }
 
-int BinaryFileTape::getSize() const { return size; }
+size_t BinaryFileTape::getSize() const { return m_size; }
 
 void BinaryFileTape::applyDelay(int delay) const {
   std::this_thread::sleep_for(std::chrono::milliseconds(delay));

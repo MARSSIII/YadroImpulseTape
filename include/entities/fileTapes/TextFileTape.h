@@ -19,18 +19,20 @@ public:
   void rewind() final;
 
   bool isAtEnd() const final;
-  int getSize() const final;
+  size_t getSize() const final;
   std::string getFileName() const;
 
 private:
-  std::fstream file;
-  std::string filename;
-  TapeConfig config;
+  size_t m_currentIndex;
+  size_t m_totalNumbers;
 
-  std::vector<std::streampos> positions;
-  size_t currentIndex;
-  size_t totalNumbers;
-  bool fileModified;
+  std::fstream m_file;
+  std::string m_filename;
+
+  TapeConfig m_config;
+
+  std::vector<std::streampos> m_positions;
+  bool m_fileModified;
 
   void buildPositionIndex();
   void updateFileSize();

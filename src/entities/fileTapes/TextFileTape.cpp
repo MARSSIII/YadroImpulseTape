@@ -1,5 +1,4 @@
 #include "../../../include/entities/fileTapes/TextFileTape.h"
-
 #include <cctype>
 #include <chrono>
 #include <stdexcept>
@@ -7,15 +6,16 @@
 
 TextFileTape::TextFileTape(const std::string &filename,
                            const TapeConfig &config)
-    : filename(filename), config(config), currentIndex(0), totalNumbers(0),
-      fileModified(false) {
+    : m_currentIndex(0), m_totalNumbers(0), m_filename(filename),
+      m_config(config), m_fileModified(false) {
 
-  file.open(filename, std::ios::in | std::ios::out | std::ios::ate);
-  if (!file) {
-    file.clear();
-    file.open(filename, std::ios::out);
-    file.close();
-    file.open(filename, std::ios::in | std::ios::out | std::ios::ate);
+  m_file.open(m_filename, std::ios::in | std::ios::out | std::ios::ate);
+
+  if (!m_file) {
+    m_file.clear();
+    m_file.open(m_filename, std::ios::out);
+    m_file.close();
+    m_file.open(m_filename, std::ios::in | std::ios::out | std::ios::ate);
   }
 
   buildPositionIndex();
@@ -23,52 +23,44 @@ TextFileTape::TextFileTape(const std::string &filename,
 }
 
 TextFileTape::~TextFileTape() noexcept {
-  if (file.is_open()) {
-    file.close();
+  if (m_file.is_open()) {
+    m_file.close();
   }
 }
 
 void TextFileTape::buildPositionIndex() {
-  positions.clear();
-  file.seekg(0);
-  file.clear();
-
+  m_positions.clear();
+  m_file.seekg(0);
+  m_file.clear();
   char ch;
   bool numberStart = true;
   std::streampos startPos;
-
-  while (file.get(ch)) {
+  while (m_file.get(ch)) {
     if (std::isdigit(ch) || (numberStart && (ch == '-' || ch == '+'))) {
-
       if (numberStart) {
-        startPos = file.tellg() - std::streampos(1);
+        startPos = m_file.tellg() - std::streampos(1);
         numberStart = false;
       }
-
     } else if (!std::isspace(ch)) {
       numberStart = true;
-
     } else {
-
       if (!numberStart) {
-        positions.push_back(startPos);
+        m_positions.push_back(startPos);
         numberStart = true;
       }
     }
   }
-
   if (!numberStart) {
-    positions.push_back(startPos);
+    m_positions.push_back(startPos);
   }
-
-  totalNumbers = positions.size();
-  file.clear();
+  m_totalNumbers = m_positions.size();
+  m_file.clear();
 }
 
 void TextFileTape::updateFileSize() {
-  if (fileModified) {
+  if (m_fileModified) {
     buildPositionIndex();
-    fileModified = false;
+    m_fileModified = false;
   }
 }
 
@@ -76,59 +68,51 @@ int TextFileTape::read() {
   if (isAtEnd()) {
     throw std::out_of_range("Read position out of range");
   }
-
-  applyDelay(config.readDelay);
-
-  file.seekg(positions[currentIndex]);
+  applyDelay(m_config.readDelay);
+  m_file.seekg(m_positions[m_currentIndex]);
   int value;
-  file >> value;
-
+  m_file >> value;
   return value;
 }
 
 void TextFileTape::write(int data) {
-  applyDelay(config.writeDelay);
-
-  file.seekp(0, std::ios::end);
-
-  if (totalNumbers > 0) {
-    file << " ";
+  applyDelay(m_config.writeDelay);
+  m_file.seekp(0, std::ios::end);
+  if (m_totalNumbers > 0) {
+    m_file << " ";
   }
-
-  const std::streampos writePos = file.tellp();
-  file << data;
-  file.flush();
-
-  positions.push_back(writePos);
-  totalNumbers++;
-
-  currentIndex = totalNumbers - 1;
+  const std::streampos writePos = m_file.tellp();
+  m_file << data;
+  m_file.flush();
+  m_positions.push_back(writePos);
+  m_totalNumbers++;
+  m_currentIndex = m_totalNumbers - 1;
 }
 
 void TextFileTape::moveLeft() {
-  if (currentIndex > 0) {
-    applyDelay(config.shiftDelay);
-    currentIndex--;
+  if (m_currentIndex > 0) {
+    applyDelay(m_config.shiftDelay);
+    m_currentIndex--;
   }
 }
 
 void TextFileTape::moveRight() {
-  if (currentIndex < totalNumbers) {
-    applyDelay(config.shiftDelay);
-    currentIndex++;
+  if (m_currentIndex < m_totalNumbers) {
+    applyDelay(m_config.shiftDelay);
+    m_currentIndex++;
   }
 }
 
 void TextFileTape::rewind() {
-  applyDelay(config.rewindDelay);
-  currentIndex = 0;
+  applyDelay(m_config.rewindDelay);
+  m_currentIndex = 0;
 }
 
-bool TextFileTape::isAtEnd() const { return currentIndex >= totalNumbers; }
+bool TextFileTape::isAtEnd() const { return m_currentIndex >= m_totalNumbers; }
 
-int TextFileTape::getSize() const { return totalNumbers; }
+size_t TextFileTape::getSize() const { return m_totalNumbers; }
 
-std::string TextFileTape::getFileName() const { return filename; }
+std::string TextFileTape::getFileName() const { return m_filename; }
 
 void TextFileTape::applyDelay(int delay) const {
   std::this_thread::sleep_for(std::chrono::milliseconds(delay));

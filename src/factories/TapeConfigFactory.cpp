@@ -1,4 +1,4 @@
-#include "../../include/factories/FileTapeConfigFactory.h"
+#include "../../include/factories/TapeConfigFactory.h"
 
 #include <algorithm>
 #include <fstream>
@@ -9,27 +9,29 @@
 
 using namespace std::string_view_literals;
 
+// Вспомогательная функция для удаления пробельных символов с обеих сторон
+// строки
 void trimWhitespace(std::string &s) {
   constexpr auto whitespace = " \t\n\r\f\v"sv;
   s.erase(s.find_last_not_of(whitespace) + 1);
   s.erase(0, s.find_first_not_of(whitespace));
 }
 
-FileTapeConfigFactory::FileTapeConfigFactory(std::string filename)
-    : configFile_(std::move(filename)) {}
+TapeConfigFactory::TapeConfigFactory(std::string filename)
+    : m_configFile(std::move(filename)) {}
 
-TapeConfig FileTapeConfigFactory::create() const {
+TapeConfig TapeConfigFactory::create() const {
   TapeConfig config;
 
-  if (configFile_.empty()) {
+  if (m_configFile.empty()) {
     return config;
   }
 
-  std::ifstream file(configFile_);
+  std::ifstream file(m_configFile);
 
   if (!file.is_open()) {
     throw std::runtime_error("[CONFIG] Failed to open config file: " +
-                             configFile_);
+                             m_configFile);
   }
 
   std::string line;
@@ -49,8 +51,15 @@ TapeConfig FileTapeConfigFactory::create() const {
   return config;
 }
 
-void FileTapeConfigFactory::parseLine(const std::string &line,
-                                      TapeConfig &config) const {
+/// @brief Обрабатывает строку конфигурации формата "ключ=значение"
+/// @details Поддерживаемые ключи (регистрозависимые):
+///   read_delay    - задержка чтения (мс)
+///   write_delay   - задержка записи (мс)
+///   rewind_delay  - задержка перемотки (мс)
+///   shift_delay   - задержка перемещения головки (мс)
+/// Пробелы вокруг ключа и значения игнорируются
+void TapeConfigFactory::parseLine(const std::string &line,
+                                  TapeConfig &config) const {
   std::string trimmed = line;
   trimWhitespace(trimmed);
 
@@ -98,7 +107,9 @@ void FileTapeConfigFactory::parseLine(const std::string &line,
   }
 }
 
-void FileTapeConfigFactory::validateConfig(const TapeConfig &config) const {
+/// @brief Проверяет что все параметры конфигурации неотрицательные
+/// @throws std::runtime_error Если найдено отрицательное значение
+void TapeConfigFactory::validateConfig(const TapeConfig &config) const {
   const auto checkNegative = [](int value, const std::string &name) -> void {
     if (value < 0) {
       throw std::runtime_error(name + " cannot be negative");
