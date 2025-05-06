@@ -14,7 +14,8 @@ BinaryFileTape::BinaryFileTape(const std::string &filename,
     m_file.clear();
     m_file.open(filename, std::ios::out);
     m_file.close();
-    m_file.open(filename, std::ios::in | std::ios::out | std::ios::ate);
+    m_file.open(filename, std::ios::in | std::ios::out | std::ios::ate |
+                              std::ios::binary);
   }
 
   updateSize();
