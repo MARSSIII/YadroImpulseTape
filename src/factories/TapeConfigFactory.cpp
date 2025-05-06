@@ -102,6 +102,8 @@ void TapeConfigFactory::parseLine(const std::string &line,
     config.rewindDelay = value;
   } else if (key == "shift_delay") {
     config.shiftDelay = value;
+  } else if (key == "memory_limit") {
+    config.memoryLimit = value;
   } else {
     throw std::runtime_error("Unknown config key: " + key);
   }
