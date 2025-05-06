@@ -68,6 +68,7 @@ TEST_F(TapeConfigFactoryTest, CommentsAndWhitespace) {
     file << "   # Another comment\n";
     file << "rewind_delay=300\n";
     file << "shift_delay = 400\n";
+    file << "memory_limit = 2000";
   }
 
   TapeConfigFactory factory(filename);
@@ -77,6 +78,7 @@ TEST_F(TapeConfigFactoryTest, CommentsAndWhitespace) {
   EXPECT_EQ(config.writeDelay, 200);
   EXPECT_EQ(config.rewindDelay, 300);
   EXPECT_EQ(config.shiftDelay, 400);
+  EXPECT_EQ(config.memoryLimit, 2000);
 }
 
 TEST_F(TapeConfigFactoryTest, InvalidFormatNotAssignment) {
@@ -165,6 +167,7 @@ TEST_F(TapeConfigFactoryTest, PartialConfig) {
   EXPECT_EQ(config.shiftDelay, 60);
   EXPECT_EQ(config.writeDelay, 0);
   EXPECT_EQ(config.rewindDelay, 0);
+  EXPECT_EQ(config.memoryLimit, 1024);
 }
 
 TEST_F(TapeConfigFactoryTest, DuplicateKeys) {
