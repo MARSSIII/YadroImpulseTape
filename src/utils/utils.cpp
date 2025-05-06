@@ -118,3 +118,15 @@ void utils::clearFile(const std::string &filename) {
   // Файл будет автоматически закрыт при выходе из функции (RAII для
   // std::ofstream)
 }
+
+/// @brief Возвращает размер указанного файла в байтах.
+/// @param filename Имя файла
+/// @return Размер файла в байтах. Если файл не найден, возвращает 0.
+size_t utils::getFileSize(const std::string &filename) {
+  std::ifstream file(filename, std::ios::binary | std::ios::ate);
+
+  if (!file.is_open())
+    return 0;
+
+  return static_cast<size_t>(file.tellg());
+}

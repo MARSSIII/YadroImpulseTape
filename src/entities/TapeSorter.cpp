@@ -2,7 +2,9 @@
 #include "../../include/entities/fileTapes/BinaryFileTape.h"
 
 #include <algorithm>
+#include <exception>
 #include <filesystem>
+#include <stdexcept>
 
 namespace fs = std::filesystem;
 
@@ -24,8 +26,9 @@ void TapeSorter::sort(TapeInterface &input, TapeInterface &output) {
 
     fs::remove_all(m_tmpDir);
 
-  } catch (...) {
+  } catch (const std::exception &e) {
     fs::remove_all(m_tmpDir);
+    throw std::runtime_error("[SORT]" + std::string(e.what()));
   }
 }
 
@@ -93,7 +96,9 @@ void TapeSorter::merge(TapeInterface &output,
     temps.front()->rewind();
     output.rewind();
 
-    while (!temps.front()->isAtEnd()) {
+    size_t size = temps.front()->getSize();
+
+    for (size_t i = 0; i < size; ++i) {
       output.write(temps.front()->read());
       output.moveRight();
       temps.front()->moveRight();

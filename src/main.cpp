@@ -39,21 +39,16 @@ int main(int argc, char *argv[]) {
     std::unique_ptr<TapeInterface> inputTape;
     std::unique_ptr<TapeInterface> outputTape;
 
-    inputTape = utils::createTape(44, config, inputPath.string(), inputExt);
-    outputTape = utils::createTape(44, config, outputPath.string(), outputExt);
+    const size_t inputFileSize = utils::getFileSize(inputPath.string());
+
+    inputTape =
+        utils::createTape(inputFileSize, config, inputPath.string(), inputExt);
+    outputTape = utils::createTape(inputFileSize, config, outputPath.string(),
+                                   outputExt);
 
     TapeSorter sorter(12, config);
     sorter.sort(*inputTape, *outputTape);
-    /*
-    if (outputExt == ".txt") {
 
-              utils::processTapes<TextFileTape>(config, inputPath.string(),
-                                                outputPath.string());
-            } else {
-              utils::processTapes<BinaryFileTape>(config, inputPath.string(),
-                                                  outputPath.string());
-            }
-     */
   } catch (const std::exception &e) {
     std::cerr << "Error: \n" << e.what() << '\n';
     return 1;
