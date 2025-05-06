@@ -56,7 +56,8 @@ std::string getFileExtension(const std::string &filename);
 /// ленты.
 /// @throw std::invalid_argument Если переданное расширение `ext` не является ни
 /// ".txt", ни ".bin".
-std::unique_ptr<TapeInterface> createTape(const TapeConfig &config,
+std::unique_ptr<TapeInterface> createTape(const size_t maxSize,
+                                          const TapeConfig &config,
                                           const std::string &filename,
                                           const std::string &ext);
 

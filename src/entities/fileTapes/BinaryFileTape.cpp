@@ -5,8 +5,9 @@
 #include <thread>
 
 BinaryFileTape::BinaryFileTape(const std::string &filename,
-                               const TapeConfig &config)
-    : m_currentPosition(0), m_size(0), m_filename(filename), m_config(config) {
+                               const size_t sizeTape, const TapeConfig &config)
+    : m_currentPosition(0), m_size(0), m_maxSize(sizeTape / sizeof(int)),
+      m_filename(filename), m_config(config) {
 
   m_file.open(filename, std::ios::in | std::ios::out | std::ios::binary);
 
@@ -19,6 +20,10 @@ BinaryFileTape::BinaryFileTape(const std::string &filename,
   }
 
   updateSize();
+
+  if (m_size > m_maxSize) {
+    throw std::runtime_error("File size exceeds maximum allowed size");
+  }
 }
 
 BinaryFileTape::~BinaryFileTape() noexcept {
@@ -41,6 +46,8 @@ int BinaryFileTape::read() {
 
   applyDelay(m_config.readDelay);
 
+  m_file.seekg(m_currentPosition * sizeof(int));
+
   int value;
   m_file.read(reinterpret_cast<char *>(&value), sizeof(int));
 
@@ -50,19 +57,22 @@ int BinaryFileTape::read() {
 void BinaryFileTape::write(int data) {
   applyDelay(m_config.writeDelay);
 
+  if (m_currentPosition >= m_maxSize) {
+    throw std::out_of_range("Write position exceeds maximum size");
+  }
+
   if (m_currentPosition > m_size) {
     throw std::out_of_range("Write position out of range");
   }
 
   m_file.seekp(m_currentPosition * sizeof(int));
-  m_file.write(reinterpret_cast<const char *>(&data), sizeof(int));
+  m_file.write(reinterpret_cast<char *>(&data), sizeof(int));
   m_file.flush();
 
   if (m_currentPosition == m_size) {
     m_size++;
+    updateSize();
   }
-
-  m_currentPosition++;
 }
 
 void BinaryFileTape::moveLeft() {
@@ -76,8 +86,9 @@ void BinaryFileTape::moveLeft() {
 }
 
 void BinaryFileTape::moveRight() {
-  if (m_currentPosition < m_size) {
+  if (m_currentPosition < m_maxSize || m_currentPosition > m_size) {
     applyDelay(m_config.shiftDelay);
+
     m_currentPosition++;
     m_file.seekg(m_currentPosition * sizeof(int));
   }
@@ -93,6 +104,10 @@ void BinaryFileTape::rewind() {
 bool BinaryFileTape::isAtEnd() const { return m_currentPosition >= m_size; }
 
 size_t BinaryFileTape::getSize() const { return m_size; }
+
+size_t BinaryFileTape::getMaxSize() const { return m_maxSize; }
+
+std::string BinaryFileTape::getFilename() const { return m_filename; }
 
 void BinaryFileTape::applyDelay(int delay) const {
   std::this_thread::sleep_for(std::chrono::milliseconds(delay));

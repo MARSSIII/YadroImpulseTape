@@ -1,7 +1,5 @@
 #include "../include/entities/OldTapeSorter.h"
 #include "../include/entities/TapeConfig.h"
-#include "../include/entities/fileTapes/BinaryFileTape.h"
-#include "../include/entities/fileTapes/TextFileTape.h"
 
 #include "../include/factories/TapeConfigFactory.h"
 
@@ -41,10 +39,10 @@ int main(int argc, char *argv[]) {
     std::unique_ptr<TapeInterface> inputTape;
     std::unique_ptr<TapeInterface> outputTape;
 
-    inputTape = utils::createTape(config, inputPath.string(), inputExt);
-    outputTape = utils::createTape(config, outputPath.string(), outputExt);
+    inputTape = utils::createTape(44, config, inputPath.string(), inputExt);
+    outputTape = utils::createTape(44, config, outputPath.string(), outputExt);
 
-    TapeSorter sorter(3);
+    TapeSorter sorter(12, config);
     sorter.sort(*inputTape, *outputTape);
     /*
     if (outputExt == ".txt") {

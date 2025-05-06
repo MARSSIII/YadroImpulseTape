@@ -8,7 +8,8 @@
 
 class BinaryFileTape : public TapeInterface {
 public:
-  BinaryFileTape(const std::string &filename, const TapeConfig &config);
+  BinaryFileTape(const std::string &filename, const size_t sizeTape,
+                 const TapeConfig &config);
   ~BinaryFileTape() noexcept;
 
   int read() final;
@@ -19,11 +20,15 @@ public:
 
   bool isAtEnd() const final;
   size_t getSize() const final;
+
+  size_t getMaxSize() const;
   std::string getFilename() const;
 
 private:
   size_t m_currentPosition;
   size_t m_size;
+
+  size_t m_maxSize;
 
   std::fstream m_file;
   std::string m_filename;

@@ -75,7 +75,8 @@ std::string utils::getFileExtension(const std::string &filename) {
 /// @return std::unique_ptr<TapeInterface> Указатель на созданную ленту.
 /// @throw std::invalid_argument Если переданное расширение `ext` не
 /// является ни ".txt", ни ".bin".
-std::unique_ptr<TapeInterface> utils::createTape(const TapeConfig &config,
+std::unique_ptr<TapeInterface> utils::createTape(const size_t maxSize,
+                                                 const TapeConfig &config,
                                                  const std::string &filename,
                                                  const std::string &ext) {
 
@@ -86,7 +87,7 @@ std::unique_ptr<TapeInterface> utils::createTape(const TapeConfig &config,
 
   // Если расширение ".bin", создает ленту бинарного файла
   if (ext == ".bin") {
-    return std::make_unique<BinaryFileTape>(filename, config);
+    return std::make_unique<BinaryFileTape>(filename, maxSize, config);
   }
 
   // Если расширение не соответствует ни одному из поддерживаемых типов
