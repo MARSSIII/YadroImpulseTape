@@ -21,5 +21,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 add_test(
     NAME ${PROJECT_NAME}
-    COMMAND ${PROJECT_NAME}
+    COMMAND ${PROJECT_NAME} 
+        --gtest_verbose=1 
+        --gtest_color=yes
+        --gtest_print_time=1
 )
+
