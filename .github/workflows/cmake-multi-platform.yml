@@ -1,4 +1,4 @@
-name: CMake on multiple platforms
+name: CMake on multiple platforms (with coverage)
 
 on:
   pull_request:
@@ -34,23 +34,51 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set reusable strings
-      id: strings
+    - name: Set build directory
+      id: vars
       shell: bash
+      run: echo "dir_build=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Install dependencies (Ubuntu)
+      if: runner.os == 'Linux'
       run: |
-        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+        sudo apt-get update
+        sudo apt-get install -y cmake lcov
+
+    - name: Install dependencies (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
 
     - name: Configure CMake
-      run: >
-        cmake -B ${{ steps.strings.outputs.build-output-dir }}
-        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        -S ${{ github.workspace }}
+      run: |
+        cmake -B "${{ steps.vars.outputs.dir_build }}" \
+          -S "${{ github.workspace }}" \
+          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+          ${{ (runner.os == 'Linux' && matrix.c_compiler == 'gcc' && '--coverage') || '' }}
+          ${{ (runner.os == 'Linux' && matrix.c_compiler == 'clang' && '--coverage') || '' }}
 
     - name: Build
-      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+      run: cmake --build "${{ steps.vars.outputs.dir_build }}" --config ${{ matrix.build_type }}
 
     - name: Test
-      working-directory: ${{ steps.strings.outputs.build-output-dir }}
+      working-directory: ${{ steps.vars.outputs.dir_build }}
       run: ctest --build-config ${{ matrix.build_type }}
+
+    - name: Generate and upload coverage (Linux + gcc/clang only)
+      if: runner.os == 'Linux'
+      run: |
+        lcov --directory "${{ steps.vars.outputs.dir_build }}" --capture --output-file coverage.info
+        lcov --remove coverage.info '/usr/*' '*/tests/*' '*/_deps/*' --output-file coverage.info.cleaned
+        genhtml coverage.info.cleaned --output-directory coverage_html
+      env:
+        LCOV_BRANCH_COVERAGE: 1
+
+    - name: Upload coverage report (Linux + gcc/clang only)
+      if: runner.os == 'Linux'
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-html-${{ matrix.c_compiler }}
+        path: coverage_html
