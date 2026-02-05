@@ -9,15 +9,9 @@ namespace fs = std::filesystem;
 
 class BinaryFileTapeTest : public ::testing::Test {
 protected:
-  void SetUp() override {
-    // Создаем временную директорию
-    fs::create_directory(tmpDir);
-  }
+  void SetUp() override { fs::create_directory(tmpDir); }
 
-  void TearDown() override {
-    // Удаляем временную директорию
-    fs::remove_all(tmpDir);
-  }
+  void TearDown() override { fs::remove_all(tmpDir); }
 
   const std::string tmpDir = "testTempBinaryFileTapeTest";
 
@@ -44,7 +38,6 @@ TEST_F(BinaryFileTapeTest, WriteAndRead) {
 }
 
 TEST_F(BinaryFileTapeTest, ReadFromExistingFile) {
-  // Создаем файл с данными
 
   const std::string filename = tmpDir + "/testExisting.bin";
 
@@ -87,8 +80,8 @@ TEST_F(BinaryFileTapeTest, OverwriteData) {
 
   BinaryFileTape tape(filename, 40, config);
 
-  tape.moveRight(); // Перемещаемся к позиции 1 (значение 2)
-  tape.write(99);   // Перезаписываем
+  tape.moveRight();
+  tape.write(99);
   tape.rewind();
 
   ASSERT_EQ(tape.read(), 1);
@@ -126,7 +119,7 @@ TEST_F(BinaryFileTapeTest, ReadOutOfRange) {
   BinaryFileTape tape(filename, 40, config);
 
   tape.write(42);
-  tape.moveRight(); // Позиция 1 (за пределами размера)
+  tape.moveRight();
   ASSERT_THROW(tape.read(), std::out_of_range);
 }
 
@@ -136,12 +129,12 @@ TEST_F(BinaryFileTapeTest, WriteAtEndIncrementsSize) {
   BinaryFileTape tape(filename, 40, config);
   ASSERT_EQ(tape.getSize(), 0);
 
-  tape.write(1); // size=1
+  tape.write(1);
   ASSERT_EQ(tape.getSize(), 1);
 
   tape.moveRight();
 
-  tape.write(2); // size=2
+  tape.write(2);
   ASSERT_EQ(tape.getSize(), 2);
 }
 
@@ -166,14 +159,12 @@ TEST_F(BinaryFileTapeTest, MoveBeyondBoundsDoesNothing) {
   tape.write(1);
   tape.rewind();
 
-  // Попытка сдвинуться влево от позиции 0
   tape.moveLeft();
   ASSERT_EQ(tape.read(), 1);
 
-  // Переместиться в конец и попытаться сдвинуться вправо
   tape.moveRight();
   ASSERT_TRUE(tape.isAtEnd());
 
-  tape.moveRight(); // Ничего не происходит
+  tape.moveRight();
   ASSERT_TRUE(tape.isAtEnd());
 }

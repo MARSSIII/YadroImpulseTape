@@ -18,11 +18,9 @@ protected:
   const std::string tempDir = "tape_sorter_test_tmp";
 };
 
-/// @brief Создаёт заполненный ленту с числами из data
 std::unique_ptr<BinaryFileTape> makeTape(const std::string &file,
                                          const std::vector<int> &data,
                                          const TapeConfig &cfg) {
-  // max размер - на весь data * sizeof(int)
   auto tape =
       std::make_unique<BinaryFileTape>(file, data.size() * sizeof(int), cfg);
 
@@ -53,7 +51,6 @@ std::vector<int> readTape(BinaryFileTape &tape) {
 }
 
 TEST_F(TapeSorterTest, SimpleSortWorks) {
-  // Сортировка небольшого массива
   TapeConfig cfg{0, 0, 0, 0};
 
   std::vector<int> vec{5, 1, 3, 8, -2, 0, 5};
@@ -110,12 +107,10 @@ TEST_F(TapeSorterTest, ReverseSorted) {
 }
 
 TEST_F(TapeSorterTest, LargeRandom) {
-  // Тестируем сортировку большого файла, с ограничением памяти
   TapeConfig cfg{0, 0, 0, 0};
   size_t N = 500; // Можно увеличить для проверок
   std::vector<int> vec(N);
 
-  // Инициализируем случайными значениями
   std::mt19937 rng(42);
   std::uniform_int_distribution<int> dist(-10000, 10000);
   for (auto &v : vec)
@@ -127,8 +122,6 @@ TEST_F(TapeSorterTest, LargeRandom) {
   auto inputTape = makeTape(inputFile, vec, cfg);
   BinaryFileTape outputTape(outputFile, N * sizeof(int), cfg);
 
-  // memoryLimit меньше полного размера файла -> будет несколько фрагментов по
-  // ходу сортировки
   TapeSorter sorter(N * sizeof(int) / 10, cfg);
   sorter.sort(*inputTape, outputTape);
 

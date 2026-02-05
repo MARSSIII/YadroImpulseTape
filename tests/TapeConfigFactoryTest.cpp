@@ -8,19 +8,12 @@ namespace fs = std::filesystem;
 
 class TapeConfigFactoryTest : public ::testing::Test {
 protected:
-  void SetUp() override {
-    // Создаем временные файлы для тестов
-    fs::create_directory("testTempConfigFactory");
-  }
+  void SetUp() override { fs::create_directory("testTempConfigFactory"); }
 
-  void TearDown() override {
-    // Удаляем временную директорию
-    fs::remove_all("testTempConfigFactory");
-  }
+  void TearDown() override { fs::remove_all("testTempConfigFactory"); }
 };
 
 TEST_F(TapeConfigFactoryTest, CorrectConfig) {
-  // Создание корректного конфигурационного файла
   const std::string filename = "testTempConfigFactory/testConfig.cfg";
 
   {
@@ -58,7 +51,6 @@ TEST_F(TapeConfigFactoryTest, EmptyFile) {
 }
 
 TEST_F(TapeConfigFactoryTest, CommentsAndWhitespace) {
-  // Файл с комментариями и пробелами
   const std::string filename = "testTempConfigFactory/configWithComments";
   {
     std::ofstream file(filename);
@@ -94,7 +86,6 @@ TEST_F(TapeConfigFactoryTest, InvalidFormatNotAssignment) {
 }
 
 TEST_F(TapeConfigFactoryTest, InvalidFormatWithTwiceAssignment) {
-  // Несколько '='
   const std::string filename = "testTempConfigFactory/InvalidFormat2";
   {
     std::ofstream file(filename);
@@ -107,7 +98,6 @@ TEST_F(TapeConfigFactoryTest, InvalidFormatWithTwiceAssignment) {
 }
 
 TEST_F(TapeConfigFactoryTest, InvalidKey) {
-  // Неизвестный ключ
   const std::string filename = "testTempConfigFactory/invalidKey.cfg";
   {
     std::ofstream file(filename);
@@ -120,7 +110,6 @@ TEST_F(TapeConfigFactoryTest, InvalidKey) {
 }
 
 TEST_F(TapeConfigFactoryTest, InvalidValue) {
-  // Нечисловое значение
   const std::string filename = "testTempConfigFactory/invalidValue";
   {
     std::ofstream file(filename);

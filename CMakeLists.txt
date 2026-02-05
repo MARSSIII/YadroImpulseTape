@@ -32,7 +32,6 @@ file(GLOB_RECURSE SOURCES
     "src/utils/*.cpp"
 )
 
-# Удаляем main.cpp из списка исходников для библиотеки
 list(REMOVE_ITEM SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp")
 
 file(GLOB_RECURSE HEADERS
@@ -44,7 +43,6 @@ file(GLOB_RECURSE HEADERS
     "include/utils/*.hpp"
 )
 
-# Создаем библиотеку из исходников (без main.cpp)
 add_library(TapeSorterLib STATIC
     ${SOURCES}
     ${HEADERS}
@@ -54,7 +52,6 @@ target_include_directories(TapeSorterLib PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
 
-# Создаем исполняемый файл только из main.cpp
 add_executable(${PROJECT_NAME} src/main.cpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE TapeSorterLib)
 

@@ -9,8 +9,6 @@
 
 using namespace std::string_view_literals;
 
-// Вспомогательная функция для удаления пробельных символов с обеих сторон
-// строки
 void trimWhitespace(std::string &s) {
   constexpr auto whitespace = " \t\n\r\f\v"sv;
   s.erase(s.find_last_not_of(whitespace) + 1);
@@ -51,13 +49,6 @@ TapeConfig TapeConfigFactory::create() const {
   return config;
 }
 
-/// @brief Обрабатывает строку конфигурации формата "ключ=значение"
-/// @details Поддерживаемые ключи (регистрозависимые):
-///   read_delay    - задержка чтения (мс)
-///   write_delay   - задержка записи (мс)
-///   rewind_delay  - задержка перемотки (мс)
-///   shift_delay   - задержка перемещения головки (мс)
-/// Пробелы вокруг ключа и значения игнорируются
 void TapeConfigFactory::parseLine(const std::string &line,
                                   TapeConfig &config) const {
   std::string trimmed = line;
@@ -109,8 +100,6 @@ void TapeConfigFactory::parseLine(const std::string &line,
   }
 }
 
-/// @brief Проверяет что все параметры конфигурации неотрицательные
-/// @throws std::runtime_error Если найдено отрицательное значение
 void TapeConfigFactory::validateConfig(const TapeConfig &config) const {
   const auto checkNegative = [](int value, const std::string &name) -> void {
     if (value < 0) {

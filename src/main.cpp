@@ -7,7 +7,6 @@
 
 #include "../include/utils/utils.hpp"
 
-#include <cctype>
 #include <filesystem>
 #include <iostream>
 #include <memory>
